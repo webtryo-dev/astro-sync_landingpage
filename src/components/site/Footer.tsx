@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="border-t border-border bg-background">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 md:grid-cols-4">
         <div className="md:col-span-2">
-          <Logo className="h-7" />
+          <Logo className="h-12" />
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
             AstroSync AI · Get every Shopify product approved on TikTok Shop, automatically.
           </p>

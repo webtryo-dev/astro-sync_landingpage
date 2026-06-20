@@ -1,29 +1,52 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Nav } from "@/components/site/Nav";
+import { Hero } from "@/components/site/Hero";
+import { LogoStrip } from "@/components/site/LogoStrip";
+import { Features } from "@/components/site/Features";
+import { HowItWorks } from "@/components/site/HowItWorks";
+import { Stats } from "@/components/site/Stats";
+import { Testimonials } from "@/components/site/Testimonials";
+import { Pricing } from "@/components/site/Pricing";
+import { FAQ } from "@/components/site/FAQ";
+import { CTA } from "@/components/site/CTA";
+import { Footer } from "@/components/site/Footer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "AstroSync AI — TikTok Shop compliance for Shopify" },
+      {
+        name: "description",
+        content:
+          "AstroSync installs on your Shopify store, scans your catalog with AI, and auto-fixes the issues blocking products from TikTok Shop.",
+      },
+      { property: "og:title", content: "AstroSync AI — TikTok Shop compliance for Shopify" },
+      {
+        property: "og:description",
+        content:
+          "Auto-fix titles, images, categories and attributes so every Shopify product is TikTok Shop ready.",
+      },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background">
+      <Nav />
+      <main>
+        <Hero />
+        <LogoStrip />
+        <Features />
+        <HowItWorks />
+        <Stats />
+        <Testimonials />
+        <Pricing />
+        <FAQ />
+        <CTA />
+      </main>
+      <Footer />
     </div>
   );
 }

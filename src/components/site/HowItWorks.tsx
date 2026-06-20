@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 const steps = [
   {
     n: "01",
@@ -35,15 +37,19 @@ export function HowItWorks() {
         </div>
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {steps.map((s) => (
-            <div
+          {steps.map((s, i) => (
+            <motion.div
               key={s.n}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6, delay: i * 0.12 }}
               className="rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm"
             >
               <div className="font-display text-5xl text-accent">{s.n}</div>
               <h3 className="mt-4 text-xl font-semibold">{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-white/70">{s.body}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

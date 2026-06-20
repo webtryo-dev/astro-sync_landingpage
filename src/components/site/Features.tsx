@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { ScanLine, Wand2, ShieldCheck, Image as ImageIcon, Tag, RefreshCw } from "lucide-react";
 
 const features = [
@@ -51,14 +52,21 @@ export function Features() {
         </div>
 
         <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
-            <div key={f.title} className="group bg-card p-8 transition-colors hover:bg-secondary/40">
-              <div className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
+              className="group bg-card p-8 transition-colors hover:bg-secondary/40"
+            >
+              <div className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground transition-transform group-hover:scale-110 group-hover:rotate-3">
                 <f.icon className="size-5" />
               </div>
               <h3 className="mt-6 text-lg font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.body}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

@@ -10,10 +10,10 @@ const links = [
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-50 w-full">
-      <div className="mx-auto mt-4 flex max-w-6xl items-center justify-between gap-4 rounded-full border border-border/60 bg-background/70 px-3 py-2 pl-5 shadow-soft backdrop-blur-xl md:mt-6">
+    <header className="sticky top-0 z-50 w-full px-4 md:px-0">
+      <div className="mx-auto mt-4 flex max-w-6xl items-center justify-between gap-4 rounded-full border border-border/60 bg-background/80 px-2 py-2 pl-4 shadow-soft backdrop-blur-xl md:mt-6 md:px-3 md:pl-5">
         <Link to="/" className="flex shrink-0 items-center">
-          <Logo className="h-10 md:h-12" />
+          <Logo className="h-12 md:h-16 scale-125 md:scale-150 origin-left ml-2 md:ml-4" />
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           {links.map((l) => (

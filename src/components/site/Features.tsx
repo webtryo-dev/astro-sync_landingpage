@@ -1,72 +1,106 @@
-import { motion } from "framer-motion";
-import { ScanLine, Wand2, ShieldCheck, Image as ImageIcon, Tag, RefreshCw } from "lucide-react";
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Waypoints, Sparkles, Activity, Users } from "lucide-react";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const features = [
   {
-    icon: ScanLine,
-    title: "AI catalog scan",
-    body: "We crawl every product in your Shopify store and check it against the latest TikTok Shop policies in seconds.",
+    icon: Waypoints,
+    title: "Smart Variant Mapping",
+    body: "Intelligently maps an existing Shopify product taxonomy to TikTok's strict category and variant requirements automatically.",
   },
   {
-    icon: Wand2,
-    title: "One-click auto-fix",
-    body: "Rewrite titles, regenerate descriptions, normalize variants and attributes — approved by you or fully automatic.",
+    icon: Sparkles,
+    title: "AI-Powered Copywriting",
+    body: "Leverages OpenAI to instantly rewrite, optimize, and format product descriptions to maximize conversions for the TikTok algorithm.",
   },
   {
-    icon: ImageIcon,
-    title: "Image compliance",
-    body: "Detect watermarks, low-res, and white-background violations. AstroSync regenerates compliant product images.",
+    icon: Activity,
+    title: "Live XML Feeds & Real-Time Sync",
+    body: "Native API connections ensure inventory, pricing, and new variants are always up to date across platforms without manual intervention.",
   },
   {
-    icon: Tag,
-    title: "Smart categorization",
-    body: "Map your Shopify products to the correct TikTok Shop categories and required attributes — every time.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Restricted product check",
-    body: "Flag prohibited or restricted items before TikTok does. Avoid suspensions and listing rejections.",
-  },
-  {
-    icon: RefreshCw,
-    title: "Continuous sync",
-    body: "New product added in Shopify? AstroSync scans, fixes and pushes it to TikTok Shop within minutes.",
+    icon: Users,
+    title: "Realtime Collaboration",
+    body: "Built-in team communication features (comments, messages, and project chats) to keep marketing and operations teams perfectly aligned.",
   },
 ];
 
 export function Features() {
+  const container = useRef<HTMLElement>(null);
+
+  useGSAP(() => {
+    const cards = gsap.utils.toArray<HTMLElement>('.feature-card');
+    
+    // Scroll reveal for header
+    gsap.fromTo('.features-header', 
+      { opacity: 0, y: 30 },
+      { 
+        opacity: 1, y: 0, duration: 0.8, 
+        scrollTrigger: {
+          trigger: '.features-header',
+          start: 'top 85%',
+        }
+      }
+    );
+
+    // Staggered reveal for cards
+    gsap.fromTo(cards,
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1, y: 0, duration: 0.6, stagger: 0.1,
+        scrollTrigger: {
+          trigger: '.features-grid',
+          start: 'top 80%',
+        }
+      }
+    );
+
+    // Hover interactions
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, { y: -8, duration: 0.3, ease: 'power2.out' });
+        gsap.to(card.querySelector('.feature-icon'), { scale: 1.15, rotate: 5, duration: 0.3, ease: 'back.out(2)' });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, { y: 0, duration: 0.3, ease: 'power2.out' });
+        gsap.to(card.querySelector('.feature-icon'), { scale: 1, rotate: 0, duration: 0.3, ease: 'power2.out' });
+      });
+    });
+
+  }, { scope: container });
+
   return (
-    <section id="features" className="bg-background py-24 md:py-32">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            Features
+    <section id="features" ref={container} className="bg-background py-24 md:py-32 relative">
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="features-header mx-auto max-w-2xl text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
+            Core Features
           </span>
           <h2 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
-            Everything you need to stay <span className="font-display italic">eligible</span>.
+            Everything you need to stay <span className="font-display italic text-primary">eligible</span>.
           </h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="mt-4 text-muted-foreground text-lg">
             Stop manually editing products to please TikTok Shop's reviewers. AstroSync handles
             the entire compliance loop in the background.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, i) => (
-            <motion.div
+        <div className="features-grid mt-16 grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-2">
+          {features.map((f) => (
+            <div
               key={f.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-              className="group bg-card p-8 transition-colors hover:bg-secondary/40"
+              className="feature-card group bg-card p-8 md:p-10 transition-colors hover:bg-secondary/40 cursor-pointer"
             >
-              <div className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground transition-transform group-hover:scale-110 group-hover:rotate-3">
-                <f.icon className="size-5" />
+              <div className="feature-icon grid size-12 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft">
+                <f.icon className="size-6" />
               </div>
-              <h3 className="mt-6 text-lg font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.body}</p>
-            </motion.div>
+              <h3 className="mt-8 text-xl font-semibold text-foreground">{f.title}</h3>
+              <p className="mt-3 text-base leading-relaxed text-muted-foreground">{f.body}</p>
+            </div>
           ))}
         </div>
       </div>

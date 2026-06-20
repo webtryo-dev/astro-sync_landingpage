@@ -9,13 +9,12 @@ export function CTA() {
 
         <div className="relative grid items-center gap-10 md:grid-cols-[1fr_auto]">
           <div>
-            <Logo variant="mark" className="size-12 brightness-0 invert" />
+            <Logo variant="mark" className="size-16 brightness-0 invert" />
             <h2 className="mt-6 max-w-2xl text-4xl font-semibold tracking-tight md:text-6xl">
               Ready to be <span className="font-display italic">TikTok Shop ready?</span>
             </h2>
             <p className="mt-4 max-w-xl text-white/70">
-              Install AstroSync on your Shopify store in under a minute. Your first 50 products
-              are on us.
+              Install AstroSync on your Shopify store in under a minute. Plans start at $19.99/month.
             </p>
           </div>
           <div className="flex flex-col gap-3">

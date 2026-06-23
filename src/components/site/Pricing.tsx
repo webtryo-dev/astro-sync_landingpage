@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Check } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -69,7 +70,7 @@ const tiers = [
   },
 ];
 
-export function Pricing() {
+export function Pricing({ showViewMore = false }: { showViewMore?: boolean }) {
   const container = useRef<HTMLElement>(null);
 
   useGSAP(() => {
@@ -175,6 +176,17 @@ export function Pricing() {
             </div>
           ))}
         </div>
+
+        {showViewMore && (
+          <div className="mt-12 text-center flex justify-center">
+            <Link 
+              to="/pricing" 
+              className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors border border-border rounded-full px-6 py-2 shadow-sm hover:border-primary/50"
+            >
+              View More Pricing Details &rarr;
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -42,7 +42,7 @@ function Index() {
         <HowItWorks />
         <Stats />
         <Testimonials />
-        <Pricing />
+        <Pricing showViewMore={true} />
         <FAQ />
         <CTA />
       </main>

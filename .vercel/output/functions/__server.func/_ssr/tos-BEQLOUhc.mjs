@@ -1,5 +1,5 @@
 import { s as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
-import { h as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { u as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { r as Nav, t as Footer } from "./Footer-B4WzUf9B.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/tos-BEQLOUhc.js
 var import_jsx_runtime = require_jsx_runtime();

@@ -1,22 +1,18 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/createStart-Dt05N14y.js
+import { t as renderErrorPage } from "./ssr.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/createStart-BWB9HM9w.js
 var createMiddleware = (options, __opts) => {
 	const resolvedOptions = {
 		type: "request",
 		...__opts || options
-	};
-	const setValidator = (validator) => {
-		return createMiddleware({}, Object.assign(resolvedOptions, {
-			validator,
-			inputValidator: validator
-		}));
 	};
 	return {
 		options: resolvedOptions,
 		middleware: (middleware) => {
 			return createMiddleware({}, Object.assign(resolvedOptions, { middleware }));
 		},
-		validator: setValidator,
-		inputValidator: setValidator,
+		inputValidator: (inputValidator) => {
+			return createMiddleware({}, Object.assign(resolvedOptions, { inputValidator }));
+		},
 		client: (client) => {
 			return createMiddleware({}, Object.assign(resolvedOptions, { client }));
 		},
@@ -49,4 +45,19 @@ var createStart = (getOptions) => {
 	};
 };
 //#endregion
-export { createStart as n, createMiddleware as t };
+//#region node_modules/.nitro/vite/services/ssr/assets/start-ObTnauo7.js
+var errorMiddleware = createMiddleware().server(async ({ next }) => {
+	try {
+		return await next();
+	} catch (error) {
+		if (error != null && typeof error === "object" && "statusCode" in error) throw error;
+		console.error(error);
+		return new Response(renderErrorPage(), {
+			status: 500,
+			headers: { "content-type": "text/html; charset=utf-8" }
+		});
+	}
+});
+var startInstance = createStart(() => ({ requestMiddleware: [errorMiddleware] }));
+//#endregion
+export { startInstance };

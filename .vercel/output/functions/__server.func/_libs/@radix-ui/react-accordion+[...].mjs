@@ -47,7 +47,6 @@ function createContextScope(scopeName, createContextScopeDeps = []) {
 	let defaultContexts = [];
 	function createContext3(rootComponentName, defaultContext) {
 		const BaseContext = import_react.createContext(defaultContext);
-		BaseContext.displayName = rootComponentName + "Context";
 		const index = defaultContexts.length;
 		defaultContexts = [...defaultContexts, defaultContext];
 		const Provider = (props) => {
@@ -108,7 +107,7 @@ function composeContextScopes(...scopes) {
 }
 //#endregion
 //#region node_modules/@radix-ui/react-compose-refs/dist/index.mjs
-function setRef$1(ref, value) {
+function setRef(ref, value) {
 	if (typeof ref === "function") return ref(value);
 	else if (ref !== null && ref !== void 0) ref.current = value;
 }
@@ -116,7 +115,7 @@ function composeRefs(...refs) {
 	return (node) => {
 		let hasCleanup = false;
 		const cleanups = refs.map((ref) => {
-			const cleanup = setRef$1(ref, node);
+			const cleanup = setRef(ref, node);
 			if (!hasCleanup && typeof cleanup == "function") hasCleanup = true;
 			return cleanup;
 		});
@@ -124,7 +123,7 @@ function composeRefs(...refs) {
 			for (let i = 0; i < cleanups.length; i++) {
 				const cleanup = cleanups[i];
 				if (typeof cleanup == "function") cleanup();
-				else setRef$1(refs[i], null);
+				else setRef(refs[i], null);
 			}
 		};
 	};
@@ -133,50 +132,57 @@ function useComposedRefs(...refs) {
 	return import_react.useCallback(composeRefs(...refs), refs);
 }
 //#endregion
-//#region node_modules/@radix-ui/react-slot/dist/index.mjs
+//#region node_modules/@radix-ui/react-collection/node_modules/@radix-ui/react-slot/dist/index.mjs
 // @__NO_SIDE_EFFECTS__
-function createSlot(ownerName) {
+function createSlot$1(ownerName) {
+	const SlotClone = /* @__PURE__ */ createSlotClone$1(ownerName);
 	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
-		let { children, ...slotProps } = props;
-		let slottableElement = null;
-		let hasSlottable = false;
-		const newChildren = [];
-		if (isLazyComponent(children) && typeof use === "function") children = use(children._payload);
-		import_react.Children.forEach(children, (maybeSlottable) => {
-			if (isSlottable(maybeSlottable)) {
-				hasSlottable = true;
-				const slottable = maybeSlottable;
-				let child = "child" in slottable.props ? slottable.props.child : slottable.props.children;
-				if (isLazyComponent(child) && typeof use === "function") child = use(child._payload);
-				slottableElement = getSlottableElementFromSlottable(slottable, child);
-				newChildren.push(slottableElement?.props?.children);
-			} else newChildren.push(maybeSlottable);
-		});
-		if (slottableElement) slottableElement = import_react.cloneElement(slottableElement, void 0, newChildren);
-		else if (!hasSlottable && import_react.Children.count(children) === 1 && import_react.isValidElement(children)) slottableElement = children;
-		const slottableElementRef = slottableElement ? getElementRef$1(slottableElement) : void 0;
-		const composedRef = useComposedRefs(forwardedRef, slottableElementRef);
-		if (!slottableElement) {
-			if (children || children === 0) throw new Error(hasSlottable ? createSlottableError(ownerName) : createSlotError(ownerName));
-			return children;
+		const { children, ...slotProps } = props;
+		const childrenArray = import_react.Children.toArray(children);
+		const slottable = childrenArray.find(isSlottable$1);
+		if (slottable) {
+			const newElement = slottable.props.children;
+			const newChildren = childrenArray.map((child) => {
+				if (child === slottable) {
+					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
+					return import_react.isValidElement(newElement) ? newElement.props.children : null;
+				} else return child;
+			});
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+				...slotProps,
+				ref: forwardedRef,
+				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
+			});
 		}
-		const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
-		if (slottableElement.type !== import_react.Fragment) mergedProps.ref = forwardedRef ? composedRef : slottableElementRef;
-		return import_react.cloneElement(slottableElement, mergedProps);
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+			...slotProps,
+			ref: forwardedRef,
+			children
+		});
 	});
 	Slot2.displayName = `${ownerName}.Slot`;
 	return Slot2;
 }
-var SLOTTABLE_IDENTIFIER = Symbol.for("radix.slottable");
-var getSlottableElementFromSlottable = (slottable, child) => {
-	if ("child" in slottable.props) {
-		const child2 = slottable.props.child;
-		if (!import_react.isValidElement(child2)) return null;
-		return import_react.cloneElement(child2, void 0, slottable.props.children(child2.props.children));
-	}
-	return import_react.isValidElement(child) ? child : null;
-};
-function mergeProps(slotProps, childProps) {
+// @__NO_SIDE_EFFECTS__
+function createSlotClone$1(ownerName) {
+	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		if (import_react.isValidElement(children)) {
+			const childrenRef = getElementRef$2(children);
+			const props2 = mergeProps$1(slotProps, children.props);
+			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+			return import_react.cloneElement(children, props2);
+		}
+		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
+	});
+	SlotClone.displayName = `${ownerName}.SlotClone`;
+	return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER$1 = Symbol("radix.slottable");
+function isSlottable$1(child) {
+	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER$1;
+}
+function mergeProps$1(slotProps, childProps) {
 	const overrideProps = { ...childProps };
 	for (const propName in childProps) {
 		const slotPropValue = slotProps[propName];
@@ -199,7 +205,7 @@ function mergeProps(slotProps, childProps) {
 		...overrideProps
 	};
 }
-function getElementRef$1(element) {
+function getElementRef$2(element) {
 	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
 	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
 	if (mayWarn) return element.ref;
@@ -208,23 +214,6 @@ function getElementRef$1(element) {
 	if (mayWarn) return element.props.ref;
 	return element.props.ref || element.ref;
 }
-function isSlottable(child) {
-	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
-}
-var REACT_LAZY_TYPE = Symbol.for("react.lazy");
-function isLazyComponent(element) {
-	return element != null && typeof element === "object" && "$$typeof" in element && element.$$typeof === REACT_LAZY_TYPE && "_payload" in element && isPromiseLike(element._payload);
-}
-function isPromiseLike(value) {
-	return typeof value === "object" && value !== null && "then" in value;
-}
-var createSlotError = (ownerName) => {
-	return `${ownerName} failed to slot onto its children. Expected a single React element child or \`Slottable\`.`;
-};
-var createSlottableError = (ownerName) => {
-	return `${ownerName} failed to slot onto its \`Slottable\`. Expected \`Slottable\` to receive a single React element child.`;
-};
-var use = import_react[" use ".trim().toString()];
 //#endregion
 //#region node_modules/@radix-ui/react-collection/dist/index.mjs
 function createCollection(name) {
@@ -247,7 +236,7 @@ function createCollection(name) {
 	};
 	CollectionProvider.displayName = PROVIDER_NAME;
 	const COLLECTION_SLOT_NAME = name + "CollectionSlot";
-	const CollectionSlotImpl = /* @__PURE__ */ createSlot(COLLECTION_SLOT_NAME);
+	const CollectionSlotImpl = /* @__PURE__ */ createSlot$1(COLLECTION_SLOT_NAME);
 	const CollectionSlot = import_react.forwardRef((props, forwardedRef) => {
 		const { scope, children } = props;
 		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CollectionSlotImpl, {
@@ -258,7 +247,7 @@ function createCollection(name) {
 	CollectionSlot.displayName = COLLECTION_SLOT_NAME;
 	const ITEM_SLOT_NAME = name + "CollectionItemSlot";
 	const ITEM_DATA_ATTR = "data-radix-collection-item";
-	const CollectionItemSlotImpl = /* @__PURE__ */ createSlot(ITEM_SLOT_NAME);
+	const CollectionItemSlotImpl = /* @__PURE__ */ createSlot$1(ITEM_SLOT_NAME);
 	const CollectionItemSlot = import_react.forwardRef((props, forwardedRef) => {
 		const { scope, children, ...itemData } = props;
 		const ref = import_react.useRef(null);
@@ -491,7 +480,7 @@ var require_react_dom_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.useFormStatus = function() {
 		return ReactSharedInternals.H.useHostTransitionStatus();
 	};
-	exports.version = "19.2.7";
+	exports.version = "19.2.5";
 }));
 //#endregion
 //#region node_modules/react-dom/index.js
@@ -508,6 +497,89 @@ var require_react_dom = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_react_dom_production();
 }));
 require_react_dom();
+// @__NO_SIDE_EFFECTS__
+function createSlot(ownerName) {
+	const SlotClone = /* @__PURE__ */ createSlotClone(ownerName);
+	const Slot2 = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		const childrenArray = import_react.Children.toArray(children);
+		const slottable = childrenArray.find(isSlottable);
+		if (slottable) {
+			const newElement = slottable.props.children;
+			const newChildren = childrenArray.map((child) => {
+				if (child === slottable) {
+					if (import_react.Children.count(newElement) > 1) return import_react.Children.only(null);
+					return import_react.isValidElement(newElement) ? newElement.props.children : null;
+				} else return child;
+			});
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+				...slotProps,
+				ref: forwardedRef,
+				children: import_react.isValidElement(newElement) ? import_react.cloneElement(newElement, void 0, newChildren) : null
+			});
+		}
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SlotClone, {
+			...slotProps,
+			ref: forwardedRef,
+			children
+		});
+	});
+	Slot2.displayName = `${ownerName}.Slot`;
+	return Slot2;
+}
+// @__NO_SIDE_EFFECTS__
+function createSlotClone(ownerName) {
+	const SlotClone = import_react.forwardRef((props, forwardedRef) => {
+		const { children, ...slotProps } = props;
+		if (import_react.isValidElement(children)) {
+			const childrenRef = getElementRef$1(children);
+			const props2 = mergeProps(slotProps, children.props);
+			if (children.type !== import_react.Fragment) props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+			return import_react.cloneElement(children, props2);
+		}
+		return import_react.Children.count(children) > 1 ? import_react.Children.only(null) : null;
+	});
+	SlotClone.displayName = `${ownerName}.SlotClone`;
+	return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
+function isSlottable(child) {
+	return import_react.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
+}
+function mergeProps(slotProps, childProps) {
+	const overrideProps = { ...childProps };
+	for (const propName in childProps) {
+		const slotPropValue = slotProps[propName];
+		const childPropValue = childProps[propName];
+		if (/^on[A-Z]/.test(propName)) {
+			if (slotPropValue && childPropValue) overrideProps[propName] = (...args) => {
+				const result = childPropValue(...args);
+				slotPropValue(...args);
+				return result;
+			};
+			else if (slotPropValue) overrideProps[propName] = slotPropValue;
+		} else if (propName === "style") overrideProps[propName] = {
+			...slotPropValue,
+			...childPropValue
+		};
+		else if (propName === "className") overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
+	}
+	return {
+		...slotProps,
+		...overrideProps
+	};
+}
+function getElementRef$1(element) {
+	let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+	let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.ref;
+	getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+	mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+	if (mayWarn) return element.props.ref;
+	return element.props.ref || element.ref;
+}
+//#endregion
+//#region node_modules/@radix-ui/react-primitive/dist/index.mjs
 var Primitive = [
 	"a",
 	"button",
@@ -554,7 +626,7 @@ var Presence = (props) => {
 	const { present, children } = props;
 	const presence = usePresence(present);
 	const child = typeof children === "function" ? children({ present: presence.isPresent }) : import_react.Children.only(children);
-	const ref = useStableComposedRefs(presence.ref, getElementRef(child));
+	const ref = useComposedRefs(presence.ref, getElementRef(child));
 	return typeof children === "function" || presence.isPresent ? import_react.cloneElement(child, { ref }) : null;
 };
 Presence.displayName = "Presence";
@@ -630,30 +702,6 @@ function usePresence(present) {
 		}, [])
 	};
 }
-function setRef(ref, value) {
-	if (typeof ref === "function") return ref(value);
-	else if (ref !== null && ref !== void 0) ref.current = value;
-}
-function useStableComposedRefs(...refs) {
-	const refsRef = import_react.useRef(refs);
-	refsRef.current = refs;
-	return import_react.useCallback((node) => {
-		const currentRefs = refsRef.current;
-		let hasCleanup = false;
-		const cleanups = currentRefs.map((ref) => {
-			const cleanup = setRef(ref, node);
-			if (!hasCleanup && typeof cleanup === "function") hasCleanup = true;
-			return cleanup;
-		});
-		if (hasCleanup) return () => {
-			for (let i = 0; i < cleanups.length; i++) {
-				const cleanup = cleanups[i];
-				if (typeof cleanup === "function") cleanup();
-				else setRef(currentRefs[i], null);
-			}
-		};
-	}, []);
-}
 function getAnimationName(styles) {
 	return styles?.animationName || "none";
 }
@@ -711,7 +759,7 @@ var CollapsibleTrigger = import_react.forwardRef((props, forwardedRef) => {
 	const context = useCollapsibleContext(TRIGGER_NAME$1, __scopeCollapsible);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
 		type: "button",
-		"aria-controls": context.open ? context.contentId : void 0,
+		"aria-controls": context.contentId,
 		"aria-expanded": context.open || false,
 		"data-state": getState$1(context.open),
 		"data-disabled": context.disabled ? "" : void 0,
@@ -1024,8 +1072,8 @@ var AccordionContent = import_react.forwardRef((props, forwardedRef) => {
 		...contentProps,
 		ref: forwardedRef,
 		style: {
-			"--radix-accordion-content-height": "var(--radix-collapsible-content-height)",
-			"--radix-accordion-content-width": "var(--radix-collapsible-content-width)",
+			["--radix-accordion-content-height"]: "var(--radix-collapsible-content-height)",
+			["--radix-accordion-content-width"]: "var(--radix-collapsible-content-width)",
 			...props.style
 		}
 	});
